@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     sequence = sys.argv[1]  # take sequence from command line
     
-    gridshape = (120, 120, 60)  
+    gridshape = (200, 200, 60)  
     box_lengths = (225, 225) 
     max_iter = 2000  
     dx = 1.5
