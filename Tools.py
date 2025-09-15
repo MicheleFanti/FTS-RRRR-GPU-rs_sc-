@@ -248,13 +248,13 @@ def plot_densities(
         ax = axes[idx]
 
         if c_key in ["neutral", "plus", "minus"]:
-            rho_plot = rhoS[c_key]
+            rho_plot = np.asnumpy(rhoS[c_key])
             # assume solvent density already (nx, ny)
             if rho_plot.ndim == 3 and rho_plot.shape[-1] == 1:
                 rho_plot = rho_plot[..., 0]
         else:
             # integrate over ang dimension
-            rho_plot = np.sum(rho_class[c_key] * ang_weights[None, None, :], axis=-1)
+            rho_plot = np.asnumpy(np.sum(rho_class[c_key] * ang_weights[None, None, :], axis=-1))
 
         im = ax.imshow(rho_plot.T, origin="lower", cmap="viridis")
         ax.set_title(f"{c_key}\nmean={np.mean(rho_plot):.4f}")
