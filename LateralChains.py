@@ -1,5 +1,6 @@
 class SideChain:
     _residue_props = {
+        'G': {'length': 0, 'terminal': 'none'},
         'Q': {'length': 3, 'terminal': 'both'},
         'K': {'length': 4, 'terminal': 'donor'},
         'L': {'length': 3, 'terminal': 'none'},
@@ -7,7 +8,9 @@ class SideChain:
         'F': {'length': 3, 'terminal': 'none'}, #Propriamente aromatico...
         'A': {'length': 1, 'terminal': 'none'},
         'E': {'length': 3, 'terminal': 'acceptor'},
-        'S': {'length': 2, 'terminal': 'both'}
+        'S': {'length': 2, 'terminal': 'both'},
+        'Y': {'length': 3, 'terminal': 'both'},
+        'N': {'length': 2, 'terminal': 'both'}
     }
 
     def __init__(self, name):
