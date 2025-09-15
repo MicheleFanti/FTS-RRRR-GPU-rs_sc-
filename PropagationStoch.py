@@ -257,13 +257,16 @@ def propagate_closed(sequence, backbone_seq, l_chain, rho0_per_class, w_per_clas
     
     '''for key in rho_bb:
         print(f'bb {key} {np.sum(np.sum(ang_weights*rho_bb[key], axis = -1)*spat_weights)}')'''
-    
+    l_p = compute_persistence_length_function(qf_list, qb_list, 0, u_grid, n_quad_per_rod, N, Q, spat_weights, ang_weights)
     return rho_bb, rho_sc, rho_sc_rs, Q, qf_list, qb_list, q_sc_forward, q_sc_bb_full, q_sc_rs_forward, q_sc_rs_backward
 
 
-'''
-def compute_persistence_length_function(q_bb_fw, q_bb_bw, u_grid, n_quad_per_rod, N, Q, spat_weights):
+
+def compute_persistence_length_function(q_bb_fw, q_bb_bw, ds, u_grid, n_quad_per_rod, N, Q, spat_weights, ang_weights):
+    lp_s = np.zeros(N*n_quad_per_rod)
+    u0 = np.sum(np.real(q_bb_fw[0][0]*q_bb_bw[0][0])*u_grid*ang_weights, axis = -1)
     for idxN in range(N):
         for idxs in range(n_quad_per_rod):
-            tgt_tgt_corr += (1/Q)*ds*np.sum(q_bb_fw[idxN][idxs]*q_bb_bw[idxN][idxs]*spat_weights, axis = (0,1))*
-'''
+            us = np.sum(np.real(q_bb_fw[idxN][idxs]*q_bb_bw[idxN][idxs])*u_grid*ang_weights, axis = -1)
+            lp_s[idxN*n_quad_per_rod + idxs] = (1/Q)*np.sum(np.dot(us, u0)*spat_weights, axis = (0,1))
+    return lp_s

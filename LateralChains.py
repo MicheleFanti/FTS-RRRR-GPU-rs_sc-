@@ -6,7 +6,8 @@ class SideChain:
         'V': {'length': 2, 'terminal': 'none'},
         'F': {'length': 3, 'terminal': 'none'}, #Propriamente aromatico...
         'A': {'length': 1, 'terminal': 'none'},
-        'E': {'length': 3, 'terminal': 'acceptor'}
+        'E': {'length': 3, 'terminal': 'acceptor'},
+        'S': {'length': 2, 'terminal': 'both'}
     }
 
     def __init__(self, name):

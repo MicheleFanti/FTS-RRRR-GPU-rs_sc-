@@ -7,7 +7,7 @@ import os
 import time 
 
 
-def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerrum_length, decay_es, rhop0, max_iter, gamma, salt_fraction, gridshape, outdir):
+def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerrum_length, decay_es, rhop0, max_iter, gamma, salt_fraction, gridshape, eq_iters, prod_iters, outdir):
     b_length = 0.38/3
     n_quad_per_rod = 3
     dx = 0.38/(3*n_quad_per_rod)
@@ -61,8 +61,6 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
     rhoS = {}
     rho0_sv = {}
     total_charge = sum(es_charges.get(res, 0.0) for res in sequence)
-    eq_iters = 1700
-    prod_iters = 510
     save_interval = 3
     max_iter = eq_iters + prod_iters
 
@@ -154,9 +152,9 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
 
         w_chains, w_sidechains, w_solvent, w_sidechains_rs, xi, deviations = mixer.linear_descent(xi, w_chains, w_solvent, w_sidechains, w_sidechains_rs, rhobb_class, rhoS, rhosc_class,rho_sc_rs_class, gamma,ang_weights,spat_weights, V_hydro, V_hb, A_hb, V_es, h_as, c_field, box_lengths, gridshape)
         if it == 1:
-            rhobb_class, rhosc_class, rho_sc_rs_class, Q, q_prev_fw_list, q_prev_bw_list,q_prev_fwsc_list, q_prev_bwsc_list, q_prev_fw_rs_sc_list, q_prev_bw_rs_sc_list = propagate_closed(sequence, residue_class_per_segment, l_chain, rho0_all, w_chains, w_sidechains, w_sidechains_rs, ang_weights, spat_weights, u_vectors, gridshape, b_length, n_quad_per_rod, D_theta = 0.48**(-1), Lx=dx*Nx, Ly = dx*Ny, dt=0.005, qf_previous= q_prev_fw_list, qb_previous= q_prev_bw_list, qf_prev_sc=q_prev_fwsc_list, qb_prev_sc=q_prev_bwsc_list,qf_prev_rs_sc=q_prev_fw_rs_sc_list, qb_prev_rs_sc=q_prev_bw_rs_sc_list, geom_kernel = geom_kernel, antiparallel_kernel=  antiparall_kernel, mode = 'deterministic')
+            rhobb_class, rhosc_class, rho_sc_rs_class, Q, q_prev_fw_list, q_prev_bw_list,q_prev_fwsc_list, q_prev_bwsc_list, q_prev_fw_rs_sc_list, q_prev_bw_rs_sc_list, l_p = propagate_closed(sequence, residue_class_per_segment, l_chain, rho0_all, w_chains, w_sidechains, w_sidechains_rs, ang_weights, spat_weights, u_vectors, gridshape, b_length, n_quad_per_rod, D_theta = 0.48**(-1), Lx=dx*Nx, Ly = dx*Ny, dt=0.005, qf_previous= q_prev_fw_list, qb_previous= q_prev_bw_list, qf_prev_sc=q_prev_fwsc_list, qb_prev_sc=q_prev_bwsc_list,qf_prev_rs_sc=q_prev_fw_rs_sc_list, qb_prev_rs_sc=q_prev_bw_rs_sc_list, geom_kernel = geom_kernel, antiparallel_kernel=  antiparall_kernel, mode = 'deterministic')
         else:
-            rhobb_class, rhosc_class, rho_sc_rs_class, Q, q_prev_fw_list, q_prev_bw_list,q_prev_fwsc_list, q_prev_bwsc_list, q_prev_fw_rs_sc_list, q_prev_bw_rs_sc_list = propagate_closed(sequence, residue_class_per_segment, l_chain, rho0_all, w_chains, w_sidechains, w_sidechains_rs, ang_weights, spat_weights, u_vectors, gridshape, b_length, n_quad_per_rod, D_theta = 0.48**(-1), Lx=dx*Nx, Ly = dx*Ny, dt=0.005, qf_previous = q_prev_fw_list, qb_previous = q_prev_bw_list, qf_prev_sc=q_prev_fwsc_list, qb_prev_sc=q_prev_bwsc_list,qf_prev_rs_sc=q_prev_fw_rs_sc_list, qb_prev_rs_sc=q_prev_bw_rs_sc_list, geom_kernel = geom_kernel, antiparallel_kernel=  antiparall_kernel, mode = 'thermal')
+            rhobb_class, rhosc_class, rho_sc_rs_class, Q, q_prev_fw_list, q_prev_bw_list,q_prev_fwsc_list, q_prev_bwsc_list, q_prev_fw_rs_sc_list, q_prev_bw_rs_sc_list, l_p = propagate_closed(sequence, residue_class_per_segment, l_chain, rho0_all, w_chains, w_sidechains, w_sidechains_rs, ang_weights, spat_weights, u_vectors, gridshape, b_length, n_quad_per_rod, D_theta = 0.48**(-1), Lx=dx*Nx, Ly = dx*Ny, dt=0.005, qf_previous = q_prev_fw_list, qb_previous = q_prev_bw_list, qf_prev_sc=q_prev_fwsc_list, qb_prev_sc=q_prev_bwsc_list,qf_prev_rs_sc=q_prev_fw_rs_sc_list, qb_prev_rs_sc=q_prev_bw_rs_sc_list, geom_kernel = geom_kernel, antiparallel_kernel=  antiparall_kernel, mode = 'thermal')
         for solvents in ['plus', 'minus', 'neutral']:
             rhoS[solvents] =  rho0_sv[solvents]*np.exp(-w_solvent[solvents])/(np.sum(spat_weights*np.exp(-w_solvent[solvents])))
 
@@ -189,33 +187,38 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
         if it % 15 == 0:
             os.system('clear')   
             plot_densities(sequence, {**rho_all_residue, **rhosc_class}, rhoS, gridshape, it, vchi_pp, vchi_ps, gamma, 0.0, rhop0, eps_yukawa, bjerrum_length, ang_weights, plots_folder)
-        '''if it > eq_iters and ((it - eq_iters) % save_interval == 0):
+        if it > eq_iters and ((it - eq_iters) % save_interval == 0):
             save_idx = it
-            save_fname = os.path.join(npz_folder, f"rhoS_iter_{save_idx:04d}.npz")
+            save_fname = os.path.join(npz_folder, f"densities_iter_{save_idx:04d}.npz")
+            
             try:
                 save_dict = {}
-                for s_key, s_arr in rhoS.items():
-                    # convert numpy array to numpy
-                    save_dict[f"rhoS_{s_key}"] = s_arr.get().astype(np.float32) if np.isrealobj(s_arr) else s_arr.get()
 
+                # --- Save densities from rhoS, excluding solvent ---
+                for s_key, s_arr in rhoS.items():
+                    if s_key.lower() != "solvent":
+                        save_dict[f"rhoS_{s_key}"] = (
+                            s_arr.get().astype(np.float32) 
+                            if np.isrealobj(s_arr) else s_arr.get()
+                        )
+
+                # --- Save densities from the other dictionary (Nx, Ny, Nang) ---
+                for a_key, a_arr in rho_all_residue.items():  
+                    save_dict[f"{a_key}"] = (
+                        a_arr.get().astype(np.float32) 
+                        if np.isrealobj(a_arr) else a_arr.get()
+                    )
+
+                # --- Save other quantities ---
                 save_dict["iteration"] = np.array([it])
                 save_dict["Q"] = np.array([Q])
                 save_dict["LDVC_mean"] = np.array([LDVC_mean])
+                save_dict["l_p"] = np.array([l_p])
 
                 np.savez_compressed(save_fname, **save_dict)
-                print(f"Saved rhoS densities at iter {it} -> {save_fname}")
-            except Exception as e:
-                print(f"Warning: failed to save rhoS densities at iter {it}: {e}")
+                print(f"Saved densities (excluding solvent) and l_p at iter {it} -> {save_fname}")
 
-            # --- Save propagators only ---
-            prop_fname = os.path.join(propagator_folder, f"prop_iter_{save_idx:04d}.npz")
-            try:
-                prop_dict = {
-                    "q_fw": [q.get().astype(np.complex64) for q in q_prev_fw_list],
-                    "q_bw": [q.get().astype(np.complex64) for q in q_prev_bw_list],
-                }
-                np.savez_compressed(prop_fname, **prop_dict)
-                print(f"Saved propagators at iter {it} -> {prop_fname}")
             except Exception as e:
-                print(f"Warning: failed to save propagators at iter {it}: {e}")'''
+                print(f"Warning: failed to save densities at iter {it}: {e}")
+
     return PartialsHystory, DeltaRhoHystory, LDVCs, LDVCmaxs, LDVCmins, Broken, PS

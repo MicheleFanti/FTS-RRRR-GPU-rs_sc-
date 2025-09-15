@@ -6,46 +6,45 @@ from Maininjector import main
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        raise ValueError("Please provide a sequence, e.g. python3 Tester.py QKLVFFAE")
+        raise ValueError("Provide at least a sequence, e.g. python3 Tester.py QKASASAE")
 
-    sequence = sys.argv[1]  # take sequence from command line
-    
-    gridshape = (200, 200, 60)  
-    box_lengths = (225, 225) 
-    max_iter = 2000  
+    sequence = sys.argv[1]
+
+    # valori opzionali con default
+    gamma_values      = [float(sys.argv[2])] if len(sys.argv) > 2 else [0.05]
+    eps_yukawa_values = [float(sys.argv[3])] if len(sys.argv) > 3 else [0.03, 0.8]
+    eps_hb_values     = [float(sys.argv[4])] if len(sys.argv) > 4 else [0.5, 1.5]
+    eq_iters          = int(sys.argv[5]) if len(sys.argv) > 5 else 500
+    prod_iters        = int(sys.argv[6]) if len(sys.argv) > 6 else 1000
+
+    # parametri fissi
+    gridshape = (220, 220, 60)
+    box_lengths = (225, 225)
+    max_iter = eq_iters+prod_iters
     dx = 1.5
-
     rhop0_values = [0.11]
     vchi_ps_values = [0.3]
     vchi_pp_values = [0.2]
     bjerrum_values = [0.7]
-    eps_yukawa_values = [0.03, 0.8]
-    epsilon_hb_values = [0.5, 1.5]
     salt_fractions = [0.005]
-    initial_gamma_values = [0.05]
     decay_yukawa = 5
     decay_es = 20
 
     param_combinations = list(itertools.product(
         rhop0_values, salt_fractions, vchi_ps_values, 
-        vchi_pp_values, bjerrum_values, eps_yukawa_values, epsilon_hb_values
+        vchi_pp_values, bjerrum_values, eps_yukawa_values, eps_hb_values
     ))
     print(f"\nTrying all parameter combinations for sequence: {sequence} ({len(param_combinations)} combinations)")
 
     for i, (rhop0, salt_fraction, vchi_ps, vchi_pp, bjerrum, eps_yukawa, epsilon_hb) in enumerate(param_combinations):
-        gamma_success = None
-        current_gamma_index = 0
-
-        while current_gamma_index < len(initial_gamma_values):
-            gamma = initial_gamma_values[current_gamma_index]
+        for gamma in gamma_values:
             outdir = f"{sequence}/bj{bjerrum}_vps{vchi_ps}_epsy{eps_yukawa}_epshb{epsilon_hb}/g{gamma}"
             os.makedirs(outdir, exist_ok=True)
             print(f"\n[{i+1}/{len(param_combinations)}] {sequence}, rhop0={rhop0}, salt={salt_fraction}, "
                   f"gamma={gamma}, eps_yukawa={eps_yukawa}, epsilon_hb={epsilon_hb}")
 
-            results = main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerrum, decay_es, rhop0, max_iter, gamma, salt_fraction, gridshape, outdir)
+            results = main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa,
+                           decay_yukawa, bjerrum, decay_es, rhop0, max_iter,
+                           gamma, salt_fraction, gridshape, eq_iters, prod_iters, outdir)
 
             PartialsHystory, DeltaRhoHystory, LDVCs, LDVCmaxs, LDVCmins, Broken, PS = results
-
-        if gamma_success is None:
-            print(f"  -> All gamma values failed for this parameter set.")
