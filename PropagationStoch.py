@@ -134,7 +134,7 @@ def propagate_closed(sequence, backbone_seq, l_chain, rho0_per_class, w_per_clas
             q_init_spatial = np.tensordot(q_sc_forward['Nsc'][-1] * ang_weights[None,None,:], geom_kernel, axes=([2],[0]))
         elif idx % 3 == 0:
             q_init_spatial *= np.tensordot(q_sc_forward['Nsc'][-1] * ang_weights[None,None,:], geom_kernel, axes=([2],[0]))
-        elif idx %3 == 1:
+        elif idx %3 == 1 and seq[idx] != 'G':
             q_init_spatial *= np.tensordot(q_sc_rs_forward[seq[idx]][-1, -1]* ang_weights[None,None,:], geom_kernel, axes=([2],[0]))
         elif idx % 3 == 2: 
             q_init_spatial *= np.tensordot(q_sc_forward['Csc'][-1] * ang_weights[None,None,:], geom_kernel, axes=([2],[0]))
@@ -166,7 +166,7 @@ def propagate_closed(sequence, backbone_seq, l_chain, rho0_per_class, w_per_clas
             q_prev_spatial *= np.tensordot(q_sc_forward['Nsc'][-1] * ang_weights[None,None,:], geom_kernel, axes=([2],[0]))
         elif idx % 3 == 2:
             q_prev_spatial *= np.tensordot(q_sc_forward['Csc'][-1] * ang_weights[None,None,:], geom_kernel, axes=([2],[0]))
-        elif idx %3 == 1:
+        elif idx %3 == 1 and seq[idx] != 'G':
             q_prev_spatial *= np.tensordot(q_sc_rs_forward[seq[idx]][-1, -1]* ang_weights[None,None,:], geom_kernel, axes=([2],[0]))
 
         qb_list[idx] = propagate_backward_wlc(q_prev_spatial, w_per_class[res], theta_grid, length_rod, n_quad_per_rod, D_theta, Lx, Ly, mu_backward, dt, qb_previous[idx], mode)
