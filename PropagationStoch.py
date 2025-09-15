@@ -182,7 +182,7 @@ def propagate_closed(sequence, backbone_seq, l_chain, rho0_per_class, w_per_clas
         elif idx % 3 == 0:
             prev = q_prev_spatial * np.tensordot(qf_list[idx-1][-1] * ang_weights[None,None,:], geom_kernel, axes=([2],[0]))
             q_sc_bb['Nsc'] += prev
-        elif idx % 3 == 1:
+        elif idx % 3 == 1 and seq[idx] != 'G':
             q_sc_rs_backward[seq[idx]][-1, -1] += np.tensordot(qf_list[idx-1][-1] * ang_weights[None,None,:], geom_kernel, axes=([2],[0]))*q_prev_spatial
         
     #Backpropagation of residue specific sidechains
