@@ -213,7 +213,6 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
                 save_dict["iteration"] = np.array([it])
                 save_dict["Q"] = np.array([Q])
                 save_dict["LDVC_mean"] = np.array([LDVC_mean])
-                save_dict["l_p"] = np.array([l_p])
 
                 np.savez_compressed(save_fname, **save_dict)
                 print(f"Saved densities (excluding solvent) and l_p at iter {it} -> {save_fname}")
