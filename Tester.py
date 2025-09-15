@@ -16,13 +16,13 @@ if __name__ == "__main__":
     dx = 1.5
 
     rhop0_values = [0.11]
-    vchi_ps_values = [0.0]
+    vchi_ps_values = [0.3]
     vchi_pp_values = [0.2]
     bjerrum_values = [0.7]
     eps_yukawa_values = [0.03, 0.8]
     epsilon_hb_values = [0.5, 1.5]
     salt_fractions = [0.005]
-    initial_gamma_values = [0.1]
+    initial_gamma_values = [0.05]
     decay_yukawa = 5
     decay_es = 20
 
