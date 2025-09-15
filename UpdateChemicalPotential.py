@@ -114,7 +114,7 @@ class SCFTUpdater:
         ihatc = np.fft.ifftn(np.fft.fftn(c_field)*K_es).real * (dx**2)
         ihath_a = {a: np.fft.ifftn(np.fft.fftn(h_as[a])*K_hydro).real * (dx**2) for a in h_as} 
         rho_tot = rhoPnew + rhoS_total
-        xi =  0.2*(1-1/rho_tot)
+        xi =  0.3*(1-1/rho_tot)
 
         wP_trial = {}
         for species in rho_bb_new:
