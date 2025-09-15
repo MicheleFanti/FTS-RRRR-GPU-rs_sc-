@@ -105,21 +105,22 @@ def propagate_closed(sequence, backbone_seq, l_chain, rho0_per_class, w_per_clas
     #Propagate residue-specific sidechains:
     q_sc_rs_forward = {key: np.zeros((LateralChains.SideChain(key).length, n_quad_per_rod, *gridshape), dtype=np.complex64) for key in sc_keys}
     for key in sc_keys:
-        for rod_element in range(LateralChains.SideChain(key).length):
-            eta_1 = eta_rs_sc1_full[key][:, :, rod_element, :]
-            eta_2 = eta_rs_sc2_full[key][:, :, rod_element, :]
-            mu_forward = (eta_1 + 1j*eta_2)/np.sqrt(2)
-            mu_forward = np.broadcast_to(mu_forward[:, :, None, :], (Nx, Ny, Ntheta, n_quad_per_rod))
+        if LateralChains.SideChain(key).length != 0:
+            for rod_element in range(LateralChains.SideChain(key).length):
+                eta_1 = eta_rs_sc1_full[key][:, :, rod_element, :]
+                eta_2 = eta_rs_sc2_full[key][:, :, rod_element, :]
+                mu_forward = (eta_1 + 1j*eta_2)/np.sqrt(2)
+                mu_forward = np.broadcast_to(mu_forward[:, :, None, :], (Nx, Ny, Ntheta, n_quad_per_rod))
 
-            if LateralChains.SideChain(key).terminal == 'donor':
-                q_sc_rs_forward[key][rod_element] = propagate_forward_wlc(np.sum(q_sc_forward['Nsc'][-1]*ang_weights, axis = -1), w_rs_sc[key], theta_grid, length_rod, n_quad_per_rod, D_theta, Lx, Ly, mu_forward, dt, qf_prev_rs_sc[key][rod_element], mode)
-            elif LateralChains.SideChain(key).terminal == 'acceptor':
-                q_sc_rs_forward[key][rod_element] = propagate_forward_wlc(np.sum(q_sc_forward['Csc'][-1]*ang_weights, axis = -1), w_rs_sc[key], theta_grid, length_rod, n_quad_per_rod, D_theta, Lx, Ly, mu_forward, dt, qf_prev_rs_sc[key][rod_element], mode)
-            elif LateralChains.SideChain(key).terminal == 'both':
-                ID = np.tensordot(q_sc_forward['Nsc'][-1] * ang_weights[None,None,:], geom_kernel, axes=([2],[0]))*np.tensordot(q_sc_forward['Csc'][-1] * ang_weights[None,None,:], geom_kernel, axes=([2],[0]))
-                q_sc_rs_forward[key][rod_element] = propagate_forward_wlc(ID, w_rs_sc[key], theta_grid, length_rod, n_quad_per_rod, D_theta, Lx, Ly, mu_forward, dt, qf_prev_rs_sc[key][rod_element], mode)
-            elif LateralChains.SideChain(key).terminal == 'none':
-                q_sc_rs_forward[key][rod_element] = propagate_forward_wlc(np.ones(gridshape[:2]), w_rs_sc[key], theta_grid, length_rod, n_quad_per_rod, D_theta, Lx, Ly, mu_forward, dt, qf_prev_rs_sc[key][rod_element], mode)
+                if LateralChains.SideChain(key).terminal == 'donor':
+                    q_sc_rs_forward[key][rod_element] = propagate_forward_wlc(np.sum(q_sc_forward['Nsc'][-1]*ang_weights, axis = -1), w_rs_sc[key], theta_grid, length_rod, n_quad_per_rod, D_theta, Lx, Ly, mu_forward, dt, qf_prev_rs_sc[key][rod_element], mode)
+                elif LateralChains.SideChain(key).terminal == 'acceptor':
+                    q_sc_rs_forward[key][rod_element] = propagate_forward_wlc(np.sum(q_sc_forward['Csc'][-1]*ang_weights, axis = -1), w_rs_sc[key], theta_grid, length_rod, n_quad_per_rod, D_theta, Lx, Ly, mu_forward, dt, qf_prev_rs_sc[key][rod_element], mode)
+                elif LateralChains.SideChain(key).terminal == 'both':
+                    ID = np.tensordot(q_sc_forward['Nsc'][-1] * ang_weights[None,None,:], geom_kernel, axes=([2],[0]))*np.tensordot(q_sc_forward['Csc'][-1] * ang_weights[None,None,:], geom_kernel, axes=([2],[0]))
+                    q_sc_rs_forward[key][rod_element] = propagate_forward_wlc(ID, w_rs_sc[key], theta_grid, length_rod, n_quad_per_rod, D_theta, Lx, Ly, mu_forward, dt, qf_prev_rs_sc[key][rod_element], mode)
+                elif LateralChains.SideChain(key).terminal == 'none':
+                    q_sc_rs_forward[key][rod_element] = propagate_forward_wlc(np.ones(gridshape[:2]), w_rs_sc[key], theta_grid, length_rod, n_quad_per_rod, D_theta, Lx, Ly, mu_forward, dt, qf_prev_rs_sc[key][rod_element], mode)
             
 
     #Propagate main backbone forward
@@ -186,23 +187,24 @@ def propagate_closed(sequence, backbone_seq, l_chain, rho0_per_class, w_per_clas
         
     #Backpropagation of residue specific sidechains
     for key in q_sc_rs_backward:
-        for rod_element in range(LateralChains.SideChain(key).length-1, -1, -1):
-            eta_1 = eta_rs_sc1_full[key][:, :, rod_element, ::-1]
-            eta_2 = eta_rs_sc2_full[key][:, :, rod_element, ::-1]
-            mu_backward = (eta_2 + 1j*eta_1)/np.sqrt(2)
-            mu_backward = np.broadcast_to(mu_backward[:, :, None, :], (Nx, Ny, Ntheta, n_quad_per_rod))
-            if rod_element == LateralChains.SideChain(key).length-1:
-                q_sc_rs_backward[key][rod_element, :, :, :] = propagate_backward_wlc(q_sc_rs_backward[key][rod_element, -1], w_rs_sc[key], theta_grid, length_rod, n_quad_per_rod, D_theta, Lx, Ly, mu_backward, dt, qb_prev_rs_sc[key][rod_element], mode)
-            elif rod_element < LateralChains.SideChain(key).length-1:
-                q_sc_rs_backward[key][rod_element, :, :, :] = propagate_backward_wlc(q_sc_rs_backward[key][rod_element+1, 0], w_rs_sc[key], theta_grid, length_rod, n_quad_per_rod, D_theta, Lx, Ly, mu_backward, dt, qb_prev_rs_sc[key][rod_element], mode)
-        if LateralChains.SideChain(key).terminal == 'acceptor':
-            q_sc_bb['Csc'] += np.sum(ang_weights*q_sc_rs_backward[key][0, 0], axis = -1)[..., None]
-        elif LateralChains.SideChain(key).terminal == 'donor':
-            q_sc_bb['Nsc'] += np.sum(ang_weights*q_sc_rs_backward[key][0, 0], axis = -1)[..., None]
-        elif LateralChains.SideChain(key).terminal == 'both':
-            ID = np.tensordot(ang_weights[None, None, ...]*q_sc_rs_backward[key][0, 0], geom_kernel, axes = ([2], [0]))
-            q_sc_bb['Nsc'] += ID
-            q_sc_bb['Csc'] += ID
+        if LateralChains.SideChain(key).length != 0:
+            for rod_element in range(LateralChains.SideChain(key).length-1, -1, -1):
+                eta_1 = eta_rs_sc1_full[key][:, :, rod_element, ::-1]
+                eta_2 = eta_rs_sc2_full[key][:, :, rod_element, ::-1]
+                mu_backward = (eta_2 + 1j*eta_1)/np.sqrt(2)
+                mu_backward = np.broadcast_to(mu_backward[:, :, None, :], (Nx, Ny, Ntheta, n_quad_per_rod))
+                if rod_element == LateralChains.SideChain(key).length-1:
+                    q_sc_rs_backward[key][rod_element, :, :, :] = propagate_backward_wlc(q_sc_rs_backward[key][rod_element, -1], w_rs_sc[key], theta_grid, length_rod, n_quad_per_rod, D_theta, Lx, Ly, mu_backward, dt, qb_prev_rs_sc[key][rod_element], mode)
+                elif rod_element < LateralChains.SideChain(key).length-1:
+                    q_sc_rs_backward[key][rod_element, :, :, :] = propagate_backward_wlc(q_sc_rs_backward[key][rod_element+1, 0], w_rs_sc[key], theta_grid, length_rod, n_quad_per_rod, D_theta, Lx, Ly, mu_backward, dt, qb_prev_rs_sc[key][rod_element], mode)
+            if LateralChains.SideChain(key).terminal == 'acceptor':
+                q_sc_bb['Csc'] += np.sum(ang_weights*q_sc_rs_backward[key][0, 0], axis = -1)[..., None]
+            elif LateralChains.SideChain(key).terminal == 'donor':
+                q_sc_bb['Nsc'] += np.sum(ang_weights*q_sc_rs_backward[key][0, 0], axis = -1)[..., None]
+            elif LateralChains.SideChain(key).terminal == 'both':
+                ID = np.tensordot(ang_weights[None, None, ...]*q_sc_rs_backward[key][0, 0], geom_kernel, axes = ([2], [0]))
+                q_sc_bb['Nsc'] += ID
+                q_sc_bb['Csc'] += ID
         
     q_sc_bb_full = {key: np.zeros((n_quad_per_rod, *gridshape), dtype = np.complex64) for key in ['Nsc', 'Csc']}
     for idx in ['Nsc', 'Csc']:
@@ -250,23 +252,11 @@ def propagate_closed(sequence, backbone_seq, l_chain, rho0_per_class, w_per_clas
             rho_sc[idx] += (rho0_per_class[idx]/(n_quad_per_rod*(n_app[idx])*(Q_check)))*np.real(q_sc_forward[idx][s] * q_sc_bb_full[idx][s])
         #print(f'sc {idx} {np.sum(np.sum(ang_weights*rho_sc[idx], axis = -1)*spat_weights)}')
     for key in rho_sc_rs:
-        for N in range(LateralChains.SideChain(key).length):
-            for s in range(n_quad_per_rod):
-                rho_sc_rs[key] += (rho0_per_class[key]/(n_quad_per_rod*LateralChains.SideChain(key).length*Counter(seq)[key]*0.5*(Q_check)))*np.real(q_sc_rs_forward[key][N, s] * q_sc_rs_backward[key][N, s]) *((LateralChains.SideChain(key).length*0.15)/((2*bb_segm_eff_length)+(LateralChains.SideChain(key).length*0.15)))
+        if key != 'G':
+            for m in range(LateralChains.SideChain(key).length):
+                for s in range(n_quad_per_rod):
+                    rho_sc_rs[key] += (rho0_per_class[key]/(n_quad_per_rod*LateralChains.SideChain(key).length*Counter(seq)[key]*0.5*(Q_check)))*np.real(q_sc_rs_forward[key][m, s] * q_sc_rs_backward[key][m, s]) *((LateralChains.SideChain(key).length*0.15)/((2*bb_segm_eff_length)+(LateralChains.SideChain(key).length*0.15)))
         #print(f'rs_sc {key} {np.sum(np.sum(ang_weights*rho_sc_rs[key], axis = -1)*spat_weights)}')
-    
-    '''for key in rho_bb:
-        print(f'bb {key} {np.sum(np.sum(ang_weights*rho_bb[key], axis = -1)*spat_weights)}')'''
-    l_p = compute_persistence_length_function(qf_list, qb_list, 0, u_grid, n_quad_per_rod, N, Q, spat_weights, ang_weights)
     return rho_bb, rho_sc, rho_sc_rs, Q, qf_list, qb_list, q_sc_forward, q_sc_bb_full, q_sc_rs_forward, q_sc_rs_backward
 
 
-
-def compute_persistence_length_function(q_bb_fw, q_bb_bw, ds, u_grid, n_quad_per_rod, N, Q, spat_weights, ang_weights):
-    lp_s = np.zeros(N*n_quad_per_rod)
-    u0 = np.sum(np.real(q_bb_fw[0][0]*q_bb_bw[0][0])*u_grid*ang_weights, axis = -1)
-    for idxN in range(N):
-        for idxs in range(n_quad_per_rod):
-            us = np.sum(np.real(q_bb_fw[idxN][idxs]*q_bb_bw[idxN][idxs])*u_grid*ang_weights, axis = -1)
-            lp_s[idxN*n_quad_per_rod + idxs] = (1/Q)*np.sum(np.dot(us, u0)*spat_weights, axis = (0,1))
-    return lp_s
