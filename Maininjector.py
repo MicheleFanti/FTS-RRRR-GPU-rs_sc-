@@ -201,13 +201,12 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
                             s_arr.get().astype(np.float32) 
                             if np.isrealobj(s_arr) else s_arr.get()
                         )
-
-                # --- Save densities from the other dictionary (Nx, Ny, Nang) ---
                 for a_key, a_arr in rho_all_residue.items():  
-                    save_dict[f"{a_key}"] = (
-                        a_arr.get().astype(np.float32) 
-                        if np.isrealobj(a_arr) else a_arr.get()
-                    )
+                    if a_key != 'pb':
+                        save_dict[f"{a_key}"] = (
+                            a_arr.get().astype(np.float32) 
+                            if np.isrealobj(a_arr) else a_arr.get()
+                        )
                 for a_key, a_arr in rhosc_class.items():  
                     save_dict[f"{a_key}"] = (
                         a_arr.get().astype(np.float32) 
@@ -218,11 +217,6 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
                         a_arr.get().astype(np.float32) 
                         if np.isrealobj(a_arr) else a_arr.get()
                     )
-                # --- Save other quantities ---
-                save_dict["iteration"] = np.array([it])
-                save_dict["Q"] = np.array([Q])
-                save_dict["LDVC_mean"] = np.array([LDVC_mean])
-
                 np.savez_compressed(save_fname, **save_dict)
                 print(f"Saved densities (excluding solvent) and l_p at iter {it} -> {save_fname}")
 
