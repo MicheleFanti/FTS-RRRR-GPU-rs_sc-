@@ -208,7 +208,16 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
                         a_arr.get().astype(np.float32) 
                         if np.isrealobj(a_arr) else a_arr.get()
                     )
-
+                for a_key, a_arr in rhosc_class.items():  
+                    save_dict[f"{a_key}"] = (
+                        a_arr.get().astype(np.float32) 
+                        if np.isrealobj(a_arr) else a_arr.get()
+                    )
+                for a_key, a_arr in rho_sc_rs_class.items():  
+                    save_dict[f"{a_key}"] = (
+                        a_arr.get().astype(np.float32) 
+                        if np.isrealobj(a_arr) else a_arr.get()
+                    )
                 # --- Save other quantities ---
                 save_dict["iteration"] = np.array([it])
                 save_dict["Q"] = np.array([Q])
