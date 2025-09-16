@@ -214,7 +214,7 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
                         if np.isrealobj(a_arr) else a_arr.get()
                     )
                 for a_key, a_arr in rho_sc_rs_class.items():  
-                    save_dict[f"{a_key}"] = (
+                    save_dict[f"{a_key}rs_sc"] = (
                         a_arr.get().astype(np.float32) 
                         if np.isrealobj(a_arr) else a_arr.get()
                     )
