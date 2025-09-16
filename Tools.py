@@ -99,11 +99,11 @@ def make_3D_kernel_fft(realspace_func, grid, spat_weights, *params):
     return V_k, V_real
 
 def build_angular_kernel(N_ang, u_vectors, theta_0, ang_weights):
+    sigma = 0.2
     kernel = np.zeros((N_ang, N_ang))
     for idxu, u in enumerate(u_vectors): 
         for idxv, v in enumerate(u_vectors): 
-            kernel[idxu, idxv] = (np.tensordot(u, v, axes=([0], [0])) - np.cos(theta_0))**2
-
+            kernel[idxu, idxv] = np.exp((np.tensordot(u, v, axes=([0], [0])) - np.cos(theta_0))**2/(2*sigma**2))
     kernel /= np.sum(np.sum(kernel*ang_weights, axis = -1)*ang_weights, axis = -1) # normalization
     return kernel
 
@@ -115,6 +115,7 @@ def build_exp_angular_kernel(N_ang, u_vectors, theta_0, ang_weights):
             kernel[idxu, idxv] = np.exp((np.tensordot(u, v, axes=([0], [0])) - np.cos(theta_0))**2/(2*sigma**2))
     kernel /= np.sum(np.sum(kernel*ang_weights, axis = -1)*ang_weights, axis = -1) # normalization
     return kernel
+
 def build_identity_angular_kernel(N_ang, u_vectors, theta_0, ang_weights):
     kernel = np.eye(N_ang)  # identity
     kernel /= np.sum(np.sum(kernel*ang_weights, axis=-1)*ang_weights, axis=-1)  # normalization
