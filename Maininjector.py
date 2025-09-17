@@ -61,7 +61,7 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
     rhoS = {}
     rho0_sv = {}
     total_charge = sum(es_charges.get(res, 0.0) for res in sequence)
-    save_interval = 3
+    save_interval = 5
     max_iter = eq_iters + prod_iters
 
 
