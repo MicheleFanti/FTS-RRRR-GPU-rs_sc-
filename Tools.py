@@ -12,7 +12,7 @@ def initialize_alternative_rho(sequence, rho_class, rho0_per_class,
                                droplet_boost=1.0, droplet_sigma_frac=0.08,
                                n_noise_droplets=0, noise_boost_frac=0.2,
                                min_distance=0,
-                               sc_frac=None):
+                               sc_frac=None): 
 
     Nx, Ny, Nang = gridshape
     X, Y = np.meshgrid(np.arange(Nx), np.arange(Ny), indexing="ij")
