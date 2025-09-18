@@ -147,7 +147,8 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
     q_prev_bw_rs_sc_list = {key: np.zeros((LateralChains.SideChain(key).length, n_quad_per_rod, *gridshape), dtype=np.complex64) for key in set(sequence)}
 
     for it in range(1, max_iter+1):
-        c_gamma = max(gamma_min, gamma/(1+(it-500)))
+        if it > 300:
+            c_gamma = max(gamma_min, np.abs(gamma/((it-300))))
         start = time.time()
         h_as = compute_has(sequence, charges, rho_sc_rs_class, res_classes, ang_weights, gridshape)
         c_field = compute_c(sequence, es_charges, rho_sc_rs_class, rhoS, res_classes, ang_weights, gridshape)
