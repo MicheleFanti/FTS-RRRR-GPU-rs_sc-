@@ -23,12 +23,12 @@ if __name__ == "__main__":
     max_iter = eq_iters+prod_iters
     dx = 1.5
     rhop0_values = [0.16]
-    vchi_ps_values = [0.0]
-    vchi_pp_values = [0.0]
-    bjerrum_values = [0.7]
+    vchi_ps_values = [0.3]
+    vchi_pp_values = [0.15]
+    bjerrum_values = [0.0]
     salt_fractions = [0.005]
-    decay_yukawa = 0.5
-    decay_es = 2
+    decay_yukawa = 1
+    decay_es = 1
 
     param_combinations = list(itertools.product(
         rhop0_values, salt_fractions, vchi_ps_values, 
