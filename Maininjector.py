@@ -15,7 +15,7 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
     l_hb = 0.18
     sigma_hb = 0.02 
     sigma_ev = 0.02
-    gamma_min = 5e-5
+    gamma_min = gamma
     
     Nx, Ny, Nang = gridshape
     box_lengths = tuple(d * dx for d in gridshape[:2])
