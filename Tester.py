@@ -27,7 +27,7 @@ if __name__ == "__main__":
     vchi_pp_values = [0.0]
     bjerrum_values = [0.0]
     salt_fractions = [0.005]
-    decay_yukawa = 0.5
+    decay_yukawa = 5
     decay_es = 1
 
     param_combinations = list(itertools.product(
