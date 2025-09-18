@@ -219,6 +219,7 @@ def plot_densities(
     import matplotlib.pyplot as plt
     import os
     import math
+    import numpy as _np  # real NumPy (CPU)
 
     Nx, Ny, Nz = gridshape
 
@@ -238,7 +239,7 @@ def plot_densities(
     all_keys = plot_classes + ["neutral", "plus", "minus"]
 
     # +1 for total density plot
-    n_plots = len(all_keys) + 1  
+    n_plots = len(all_keys) + 1
     ncols = 3
     nrows = math.ceil(n_plots / ncols)
     fig, axes = plt.subplots(nrows, ncols, figsize=(6 * ncols, 5 * nrows))
@@ -250,24 +251,24 @@ def plot_densities(
         ax = axes[idx]
 
         if c_key in ["neutral", "plus", "minus"]:
-            rho_plot = np.asnumpy(rhoS[c_key])
+            rho_plot = np.asnumpy(rhoS[c_key])  # np = CuPy
             if rho_plot.ndim == 3 and rho_plot.shape[-1] == 1:
                 rho_plot = rho_plot[..., 0]
         else:
             rho_plot = np.asnumpy(np.sum(rho_class[c_key] * ang_weights[None, None, :], axis=-1))
 
         if total_density is None:
-            total_density = np.zeros_like(rho_plot)
+            total_density = _np.zeros_like(rho_plot)  # NumPy array on CPU
         total_density += rho_plot
 
         im = ax.imshow(rho_plot.T, origin="lower", cmap="viridis")
-        ax.set_title(f"{c_key}\nmean={np.mean(rho_plot):.4f}")
+        ax.set_title(f"{c_key}\nmean={_np.mean(rho_plot):.4f}")
         fig.colorbar(im, ax=ax, shrink=0.8)
 
     # add total density plot
     ax = axes[len(all_keys)]
     im = ax.imshow(total_density.T, origin="lower", cmap="inferno")
-    ax.set_title(f"Total density\nmean={np.mean(total_density):.4f}")
+    ax.set_title(f"Total density\nmean={_np.mean(total_density):.4f}")
     fig.colorbar(im, ax=ax, shrink=0.8)
 
     # hide unused axes
