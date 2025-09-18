@@ -94,7 +94,7 @@ class SCFTUpdater:
         bb_deviation = sum(np.sum((wP_trial[key])**2 * spat_weights[..., None]*ang_weights[None, None, ...]) for key in wP_trial)
         sc_rs_deviation = sum(np.sum((WScRs_trial[key])**2 * spat_weights[..., None]*ang_weights[None, None, ...]) for key in WScRs_trial)
         sc_deviation =  sum(np.sum((wSc_trial[key])**2 * spat_weights[..., None]*ang_weights[None, None, ...]) for key in wSc_trial)
-        solv_deviation = sum(np.sum((w_new_solv[key])**2  * spat_weights) for key in w_new_solv)
+        solv_deviation = sum(np.sum((wS_trial[key])**2  * spat_weights) for key in w_new_solv)
         print(f'Deviations being: BB:= {bb_deviation}, SOLV:=  {solv_deviation}, SC:=  {sc_deviation}, SC_RS:={sc_rs_deviation}')
         return w_new_bb, w_new_sc, w_new_solv, w_new_sc_rs, xi, [bb_deviation, sc_deviation, solv_deviation, sc_rs_deviation]
         
