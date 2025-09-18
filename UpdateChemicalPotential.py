@@ -33,7 +33,7 @@ class SCFTUpdater:
         ihatc = np.fft.ifftn(np.fft.fftn(c_field)*K_es).real * (dx**2)
         ihath_a = {a: np.fft.ifftn(np.fft.fftn(h_as[a])*K_hydro).real * (dx**2) for a in h_as} 
          
-        xi =  xi_prior + 0.01*(rho_tot-1)
+        xi =  xi_prior + 0.3*(rho_tot-1)
         wP_trial = {}
         for species in rho_bb_new:
             comp_vchi_ps, comp_vchi_pp = np.zeros(gridshape[:2]), np.zeros(gridshape[:2])
@@ -46,7 +46,7 @@ class SCFTUpdater:
                         h_as_total += self.hydro_lambdas[a_key]*self.hydro_charges[a_key][idx_in_res]*ihath_a[a_key]'''
                 comp_vchi_ps = rhoS_total*self.vchi_ps
                 comp_vchi_pp = rhoPnew*self.vchi_pp
-            wP_trial[species] = np.broadcast_to(comp_vchi_ps[..., None] + comp_vchi_pp[..., None] +xi[..., None], gridshape).copy()
+            wP_trial[species] = np.broadcast_to(comp_vchi_ps[..., None] + comp_vchi_pp[..., None] , gridshape).copy()
             wP_trial[species] -= w_prior_bb[species]
 
         wSc_trial = {} 
@@ -80,16 +80,16 @@ class SCFTUpdater:
 
         w_new_bb = {}
         for key in w_prior_bb:
-            w_new_bb[key] = w_prior_bb[key] + gamma * wP_trial[key] +np.broadcast_to(xi[..., None], gridshape).copy()
+            w_new_bb[key] = w_prior_bb[key] + gamma * (wP_trial[key] +np.broadcast_to(xi[..., None], gridshape).copy())
         w_new_solv = {}
         for key in w_prior_solv:
-            w_new_solv[key] = w_prior_solv[key] + gamma * wS_trial[key] + xi
+            w_new_solv[key] = w_prior_solv[key] + gamma *( wS_trial[key] + xi)
         w_new_sc = {}
         for key in w_prior_sc:
-            w_new_sc[key] = w_prior_sc[key] + gamma*wSc_trial[key] +np.broadcast_to(xi[..., None], gridshape).copy()
+            w_new_sc[key] = w_prior_sc[key] + gamma*(wSc_trial[key] +np.broadcast_to(xi[..., None], gridshape).copy())
         w_new_sc_rs = {}
         for key in WScRs_trial:
-            w_new_sc_rs[key] = w_prior_sc_rs[key] + gamma*WScRs_trial[key] +np.broadcast_to(xi[..., None], gridshape).copy()
+            w_new_sc_rs[key] = w_prior_sc_rs[key] + gamma*(WScRs_trial[key] +np.broadcast_to(xi[..., None], gridshape).copy())
 
         bb_deviation = sum(np.sum((wP_trial[key])**2 * spat_weights[..., None]*ang_weights[None, None, ...]) for key in wP_trial)
         sc_rs_deviation = sum(np.sum((WScRs_trial[key])**2 * spat_weights[..., None]*ang_weights[None, None, ...]) for key in WScRs_trial)
