@@ -184,7 +184,7 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
             break
         if it % 1 == 0:
             print(f'Iter {it} | Elapsed: {time.time()- start}|LDVC mean/max/min={LDVC_mean:.4f}/{LDVC_max:.4f}/{LDVC_min:.4f}, gamma = {c_gamma:.4f}, eps_yuk={eps_yukawa:.4f}, eps_hb = {epsilon_hb:.4f}, vchi_pp/ps = {vchi_pp}/{vchi_ps}, ')
-        if it % 15 == 0:
+        if it % 100 == 0:
             os.system('clear')   
             plot_densities(sequence, {**rho_all_residue, **rhosc_class}, rhoS, gridshape, it, vchi_pp, vchi_ps, gamma, 0.0, rhop0, eps_yukawa, bjerrum_length, ang_weights, plots_folder)
         if it > eq_iters and ((it - eq_iters) % save_interval == 0):
