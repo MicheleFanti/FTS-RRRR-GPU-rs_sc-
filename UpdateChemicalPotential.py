@@ -73,6 +73,10 @@ class SCFTUpdater:
             WScRs_trial[species] -= w_prior_sc_rs[species]
 
         wS_trial = {}
+        for s in rho_solv_new:
+            contrib_rhoP = rhoPnew * self.vchi_ps
+            contrib_es = self.es_charges[s] * ihatc
+            wS_trial[s] = gamma*(contrib_rhoP + contrib_es)
 
         w_new_bb = {}
         for key in w_prior_bb:
