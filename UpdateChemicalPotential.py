@@ -33,7 +33,7 @@ class SCFTUpdater:
         ihatc = np.fft.ifftn(np.fft.fftn(c_field)*K_es).real * (dx**2)
         ihath_a = {a: np.fft.ifftn(np.fft.fftn(h_as[a])*K_hydro).real * (dx**2) for a in h_as} 
          
-        xi =  xi_prior + 0.6*(rho_tot-1)
+        xi =  xi_prior + 0.8*(rho_tot-1)
         wP_trial = {}
         for species in rho_bb_new:
             comp_vchi_ps, comp_vchi_pp = np.zeros(gridshape[:2]), np.zeros(gridshape[:2])
@@ -71,6 +71,7 @@ class SCFTUpdater:
             contrib_rhoP = rhoPnew * self.vchi_ps
             contrib_es = self.es_charges[s] * ihatc
             wS_trial[s] = (contrib_rhoP + contrib_es+ xi)
+            wS_trial[s] -= w_prior_solv[s]
 
         w_new_bb = {}
         for key in w_prior_bb:
