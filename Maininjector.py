@@ -50,8 +50,8 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
     V_ev, _ = make_3D_kernel_fft(gaussian_realspace,  grid, spat_weights, 0, sigma_ev)
     
     A_hb = build_angular_kernel(Nang, u_vectors, np.pi, ang_weights)
-    geom_kernel = build_exp_angular_kernel(Nang, u_vectors, (2/3)*np.pi, ang_weights)
-    antiparall_kernel = build_exp_angular_kernel(Nang, u_vectors, np.pi, ang_weights)
+    geom_kernel = build_identity_angular_kernel(Nang, u_vectors, (2/3)*np.pi, ang_weights)
+    antiparall_kernel = build_identity_angular_kernel(Nang, u_vectors, np.pi, ang_weights)
     
     DeltaRhoHystory = []
     PartialsHystory = {k: [0] * (max_iter+1) for k in rho0_all}
