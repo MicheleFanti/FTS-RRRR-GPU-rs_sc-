@@ -23,8 +23,8 @@ if __name__ == "__main__":
     max_iter = eq_iters+prod_iters
     dx = 1.5
     rhop0_values = [0.16]
-    vchi_ps_values = [0.3]
-    vchi_pp_values = [0.15]
+    vchi_ps_values = [0.0]
+    vchi_pp_values = [0.0]
     bjerrum_values = [0.0]
     salt_fractions = [0.005]
     decay_yukawa = 1
