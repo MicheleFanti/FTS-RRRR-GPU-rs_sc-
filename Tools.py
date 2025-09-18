@@ -84,7 +84,6 @@ def gaussian_realspace(grid, spat_weights, l, sigma):
     else: 
         f = np.exp(-((r)**2)/(2*sigma**2))
         f[r < sigma] = 0
-    f /= np.sum(f*spat_weights)
     return  f
 
 def yukawa_realspace(grid, spat_weights, eps, decay, dx_min = 1e-1):
