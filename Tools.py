@@ -219,7 +219,6 @@ def plot_densities(
     import matplotlib.pyplot as plt
     import os
     import math
-    import numpy as np
 
     Nx, Ny, Nz = gridshape
 
