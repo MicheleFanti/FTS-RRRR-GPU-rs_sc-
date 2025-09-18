@@ -15,6 +15,7 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
     l_hb = 0.18
     sigma_hb = 0.02 
     sigma_ev = 0.02
+    gamma_min = 5e-5
     
     Nx, Ny, Nang = gridshape
     box_lengths = tuple(d * dx for d in gridshape[:2])
@@ -146,11 +147,12 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
     q_prev_bw_rs_sc_list = {key: np.zeros((LateralChains.SideChain(key).length, n_quad_per_rod, *gridshape), dtype=np.complex64) for key in set(sequence)}
 
     for it in range(1, max_iter+1):
+        c_gamma = max(gamma_min, gamma/(1+(it-500)))
         start = time.time()
         h_as = compute_has(sequence, charges, rho_sc_rs_class, res_classes, ang_weights, gridshape)
         c_field = compute_c(sequence, es_charges, rho_sc_rs_class, rhoS, res_classes, ang_weights, gridshape)
 
-        w_chains, w_sidechains, w_solvent, w_sidechains_rs, xi, deviations = mixer.linear_descent(xi, w_chains, w_solvent, w_sidechains, w_sidechains_rs, rhobb_class, rhoS, rhosc_class,rho_sc_rs_class, gamma,ang_weights,spat_weights, V_hydro, V_hb, A_hb, V_es, h_as, c_field, box_lengths, gridshape)
+        w_chains, w_sidechains, w_solvent, w_sidechains_rs, xi, deviations = mixer.linear_descent(xi, w_chains, w_solvent, w_sidechains, w_sidechains_rs, rhobb_class, rhoS, rhosc_class,rho_sc_rs_class, c_gamma,ang_weights,spat_weights, V_hydro, V_hb, A_hb, V_es, h_as, c_field, box_lengths, gridshape)
         if it == 1:
             rhobb_class, rhosc_class, rho_sc_rs_class, Q, q_prev_fw_list, q_prev_bw_list,q_prev_fwsc_list, q_prev_bwsc_list, q_prev_fw_rs_sc_list, q_prev_bw_rs_sc_list = propagate_closed(sequence, residue_class_per_segment, l_chain, rho0_all, w_chains, w_sidechains, w_sidechains_rs, ang_weights, spat_weights, u_vectors, gridshape, b_length, n_quad_per_rod, D_theta = 0.48**(-1), Lx=dx*Nx, Ly = dx*Ny, dt=0.001, qf_previous= q_prev_fw_list, qb_previous= q_prev_bw_list, qf_prev_sc=q_prev_fwsc_list, qb_prev_sc=q_prev_bwsc_list,qf_prev_rs_sc=q_prev_fw_rs_sc_list, qb_prev_rs_sc=q_prev_bw_rs_sc_list, geom_kernel = geom_kernel, antiparallel_kernel=  antiparall_kernel, mode = 'deterministic')
         else:
