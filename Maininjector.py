@@ -185,7 +185,7 @@ def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerr
             Broken = True
             print(f'NaN detected at iteration {it}, simulation broken. GAMMA = {c_gamma:.4f},')
             break
-        if it % 1 == 0:
+        if it % 30 == 0:
             print(f'Iter {it} | Elapsed: {time.time()- start}|LDVC mean/max/min={LDVC_mean:.4f}/{LDVC_max:.4f}/{LDVC_min:.4f}, gamma = {c_gamma:.4f}, eps_yuk={eps_yukawa:.4f}, eps_hb = {epsilon_hb:.4f}, vchi_pp/ps = {vchi_pp}/{vchi_ps}, ')
         if it % 100 == 0:
             os.system('clear')   
