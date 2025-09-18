@@ -219,6 +219,7 @@ def plot_densities(
     import matplotlib.pyplot as plt
     import os
     import math
+    import numpy as np
 
     Nx, Ny, Nz = gridshape
 
@@ -235,33 +236,43 @@ def plot_densities(
     )
 
     # include solvent in plotting
-    all_keys = plot_classes + ["neutral", "plus", "minus"] 
+    all_keys = plot_classes + ["neutral", "plus", "minus"]
 
-    n_plots = len(all_keys)
+    # +1 for total density plot
+    n_plots = len(all_keys) + 1  
     ncols = 3
     nrows = math.ceil(n_plots / ncols)
     fig, axes = plt.subplots(nrows, ncols, figsize=(6 * ncols, 5 * nrows))
-
     axes = axes.flatten()
+
+    total_density = None
 
     for idx, c_key in enumerate(all_keys):
         ax = axes[idx]
 
         if c_key in ["neutral", "plus", "minus"]:
             rho_plot = np.asnumpy(rhoS[c_key])
-            # assume solvent density already (nx, ny)
             if rho_plot.ndim == 3 and rho_plot.shape[-1] == 1:
                 rho_plot = rho_plot[..., 0]
         else:
-            # integrate over ang dimension
             rho_plot = np.asnumpy(np.sum(rho_class[c_key] * ang_weights[None, None, :], axis=-1))
+
+        if total_density is None:
+            total_density = np.zeros_like(rho_plot)
+        total_density += rho_plot
 
         im = ax.imshow(rho_plot.T, origin="lower", cmap="viridis")
         ax.set_title(f"{c_key}\nmean={np.mean(rho_plot):.4f}")
         fig.colorbar(im, ax=ax, shrink=0.8)
 
+    # add total density plot
+    ax = axes[len(all_keys)]
+    im = ax.imshow(total_density.T, origin="lower", cmap="inferno")
+    ax.set_title(f"Total density\nmean={np.mean(total_density):.4f}")
+    fig.colorbar(im, ax=ax, shrink=0.8)
+
     # hide unused axes
-    for j in range(idx + 1, len(axes)):
+    for j in range(len(all_keys) + 1, len(axes)):
         axes[j].axis("off")
 
     plt.suptitle(
