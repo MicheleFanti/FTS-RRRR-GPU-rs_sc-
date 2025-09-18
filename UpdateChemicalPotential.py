@@ -76,16 +76,16 @@ class SCFTUpdater:
 
         w_new_bb = {}
         for key in w_prior_bb:
-            w_new_bb[key] = w_prior_bb[key] + gamma * wP_trial[key] +np.broadcast_to(xi, gridshape).copy()
+            w_new_bb[key] = w_prior_bb[key] + gamma * wP_trial[key] +np.broadcast_to(xi[..., None], gridshape).copy()
         w_new_solv = {}
         for key in w_prior_solv:
             w_new_solv[key] = w_prior_solv[key] + gamma * wS_trial[key] + xi
         w_new_sc = {}
         for key in w_prior_sc:
-            w_new_sc[key] = w_prior_sc[key] + gamma*wSc_trial[key] +np.broadcast_to(xi, gridshape).copy()
+            w_new_sc[key] = w_prior_sc[key] + gamma*wSc_trial[key] +np.broadcast_to(xi[..., None], gridshape).copy()
         w_new_sc_rs = {}
         for key in WScRs_trial:
-            w_new_sc_rs[key] = w_prior_sc_rs[key] + gamma*WScRs_trial[key] +np.broadcast_to(xi, gridshape).copy()
+            w_new_sc_rs[key] = w_prior_sc_rs[key] + gamma*WScRs_trial[key] +np.broadcast_to(xi[..., None], gridshape).copy()
 
         bb_deviation = sum(np.sum((wP_trial[key])**2 * spat_weights[..., None]*ang_weights[None, None, ...]) for key in wP_trial)
         sc_rs_deviation = sum(np.sum((WScRs_trial[key])**2 * spat_weights[..., None]*ang_weights[None, None, ...]) for key in WScRs_trial)
