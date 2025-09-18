@@ -10,7 +10,7 @@ import time
 def main(sequence, epsilon_hb, vchi_pp, vchi_ps, eps_yukawa, decay_yukawa, bjerrum_length, decay_es, rhop0, max_iter, gamma, salt_fraction, gridshape, eq_iters, prod_iters, outdir):
     b_length = 0.38/3
     n_quad_per_rod = 3
-    dx = 0.38/(2*n_quad_per_rod)
+    dx = 0.38/(n_quad_per_rod)
     
     l_hb = 0.18
     sigma_hb = 0.02 
