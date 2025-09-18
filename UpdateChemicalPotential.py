@@ -53,7 +53,7 @@ class SCFTUpdater:
         for sc in rho_sc_new:
             contrib_rhoS = rhoS_total * self.vchi_ps
             contrib_hb = -0.5*self.epsilon_hb*np.fft.ifft2(np.fft.fft2(np.tensordot(rho_sc_new['Csc' if sc=='Nsc' else 'Nsc']*ang_weights[None,None,:], A_hb, axes=([2],[1])), axes=(0,1))*K_hb[..., None], axes=(0,1)).real*(dx**2)
-            wSc_trial[sc] = (contrib_hb + np.broadcast_to(contrib_rhoS[..., None] + xi[..., None], gridshape).copy())
+            wSc_trial[sc] = (contrib_hb + np.broadcast_to(contrib_rhoS[..., None], gridshape).copy())
             wSc_trial[sc] -= w_prior_sc[sc]
             
         WScRs_trial = {}
@@ -69,32 +69,28 @@ class SCFTUpdater:
             comp_vchi_pp = rhoPnew*self.vchi_pp
             comp_h_as = h_as_total
             comp_es = self.bjerrum_length* self.es_charges[species]*ihatc
-            WScRs_trial[species] = np.broadcast_to(comp_vchi_pp[..., None]+ comp_vchi_ps[..., None] + comp_h_as[..., None] + comp_es[..., None] +xi[..., None], gridshape).copy()
+            WScRs_trial[species] = np.broadcast_to(comp_vchi_pp[..., None]+ comp_vchi_ps[..., None] + comp_h_as[..., None] + comp_es[..., None], gridshape).copy()
             WScRs_trial[species] -= w_prior_sc_rs[species]
 
         wS_trial = {}
-        for s in rho_solv_new:
-            contrib_rhoP = rhoPnew * self.vchi_ps
-            contrib_es = self.es_charges[s] * ihatc
-            wS_trial[s] = (contrib_rhoP + contrib_es + xi)
 
         w_new_bb = {}
         for key in w_prior_bb:
-            w_new_bb[key] = w_prior_bb[key] + gamma * wP_trial[key]
+            w_new_bb[key] = w_prior_bb[key] + gamma * wP_trial[key] +np.broadcast_to(xi, gridshape).copy()
         w_new_solv = {}
         for key in w_prior_solv:
-            w_new_solv[key] = w_prior_solv[key] + gamma * wS_trial[key]
+            w_new_solv[key] = w_prior_solv[key] + gamma * wS_trial[key] + xi
         w_new_sc = {}
         for key in w_prior_sc:
-            w_new_sc[key] = w_prior_sc[key] + gamma*wSc_trial[key]
+            w_new_sc[key] = w_prior_sc[key] + gamma*wSc_trial[key] +np.broadcast_to(xi, gridshape).copy()
         w_new_sc_rs = {}
         for key in WScRs_trial:
-            w_new_sc_rs[key] = w_prior_sc_rs[key] + gamma*WScRs_trial[key]
+            w_new_sc_rs[key] = w_prior_sc_rs[key] + gamma*WScRs_trial[key] +np.broadcast_to(xi, gridshape).copy()
 
         bb_deviation = sum(np.sum((wP_trial[key])**2 * spat_weights[..., None]*ang_weights[None, None, ...]) for key in wP_trial)
         sc_rs_deviation = sum(np.sum((WScRs_trial[key])**2 * spat_weights[..., None]*ang_weights[None, None, ...]) for key in WScRs_trial)
         sc_deviation =  sum(np.sum((wSc_trial[key])**2 * spat_weights[..., None]*ang_weights[None, None, ...]) for key in wSc_trial)
-        solv_deviation = sum(np.sum((wS_trial[key])**2  * spat_weights) for key in wS_trial)
+        solv_deviation = sum(np.sum((w_new_solv[key])**2  * spat_weights) for key in w_new_solv)
         print(f'Deviations being: BB:= {bb_deviation}, SOLV:=  {solv_deviation}, SC:=  {sc_deviation}, SC_RS:={sc_rs_deviation}')
         return w_new_bb, w_new_sc, w_new_solv, w_new_sc_rs, xi, [bb_deviation, sc_deviation, solv_deviation, sc_rs_deviation]
         
