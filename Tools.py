@@ -9,8 +9,8 @@ import LateralChains
 _plot_counter = 0 
 def initialize_alternative_rho(sequence, rho_class, rho0_per_class,
                                gridshape, spat_weights, ang_weights,
-                               droplet_boost=1.0, droplet_sigma_frac=0.08,
-                               n_noise_droplets=0, noise_boost_frac=0.2,
+                               droplet_boost=1.0, droplet_sigma_frac=0.18,
+                               n_noise_droplets=3, noise_boost_frac=0.2,
                                min_distance=0,
                                sc_frac=None): 
 
